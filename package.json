@@ -1,0 +1,37 @@
+{
+  "name": "treehouse-react",
+  "version": "1.0.0",
+  "description": "Binding for using treehouse in React applications",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "node_modules/jasmine/bin/jasmine.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/markevans/treehouse-react.git"
+  },
+  "keywords": [
+    "javascript",
+    "treehouse",
+    "state",
+    "react",
+    "single-page"
+  ],
+  "author": "Mark Evans",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/markevans/treehouse-react/issues"
+  },
+  "homepage": "https://github.com/markevans/treehouse-react",
+  "devDependencies": {
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-register": "^6.24.1",
+    "jasmine": "^2.7.0",
+    "jsdom": "^11.1.0",
+    "react-dom": "^15.6.1",
+    "treehouse": "file:../treehouse"
+  },
+  "dependencies": {
+    "react": "^15.6.1"
+  }
+}
