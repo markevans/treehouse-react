@@ -1,7 +1,5 @@
 # Treehouse-React
 
-[![Code Climate](https://codeclimate.com/github/markevans/treehouse/badges/gpa.svg)](https://codeclimate.com/github/markevans/treehouse-react)
-
 [![Build Status](https://travis-ci.org/markevans/treehouse.svg?branch=master)](https://travis-ci.org/markevans/treehouse-react)
 
 Treehouse-React is a very small library for making it easy to use [Treehouse JS](https://github.com/markevans/treehouse) with React.
