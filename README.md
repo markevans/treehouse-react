@@ -1,6 +1,6 @@
 # Treehouse-React
 
-[![Build Status](https://travis-ci.org/markevans/treehouse.svg?branch=master)](https://travis-ci.org/markevans/treehouse-react)
+[![Build Status](https://travis-ci.org/markevans/treehouse-react.svg?branch=master)](https://travis-ci.org/markevans/treehouse-react)
 
 Treehouse-React is a very small library for making it easy to use [Treehouse JS](https://github.com/markevans/treehouse) with React.
 
@@ -30,7 +30,7 @@ const CarList = wrap(
   treehouse.treeView((t) => {
     return {
       cars: t.query('latestCars')
-    }  
+    }
   })
 )
 ```
