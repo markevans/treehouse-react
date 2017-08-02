@@ -1,5 +1,5 @@
 const JSDOM = require("jsdom").JSDOM;
-const App = require('treehouse/lib/app')
+const App = require('treehouse/lib/App')
 const React = require('react')
 const ReactDOM = require('react-dom')
 const wrap = require('../lib').wrap
