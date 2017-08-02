@@ -32,6 +32,6 @@
     "treehouse": "file:../treehouse"
   },
   "dependencies": {
-    "react": "^15.6.1"
+    "react": ">=0.3.0"
   }
 }
