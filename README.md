@@ -44,7 +44,6 @@ Note that it also uses the [Treehouse-React](https://github.com/markevans/treeho
 import React from 'react'
 import treehouse from 'treehouse'
 import { wrap } from 'treehouse-react'
-import { remove, setAttribute } from 'treehouse/reducers'
 
 // Initialize state tree
 treehouse.init({
@@ -114,17 +113,20 @@ const Item = ({item}) => (
   </li>
 )
 
+// Reducers
+treehouse.registerReducers(require('treehouse/reducers/all'))
+
 // Actions
 treehouse.registerActions({
 
   addTodo (tree, {title}) {
     // Using Math.random is not ideal but this illustrates the concept
     let newTodo = {id: Math.random(), title: title, created: Date.now()}
-    tree.at('items').$(setAttribute, newTodo.id, newTodo)
+    tree.at('items').$('setAttribute', newTodo.id, newTodo)
   },
 
   removeTodo (tree, {id}) {
-    tree.at('items').$(remove, id)
+    tree.at('items').$('remove', id)
   }
 
 })
