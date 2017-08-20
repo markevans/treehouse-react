@@ -27,7 +27,7 @@ const CarList = wrap(
       {cars.map(car => <Car car={car} key={car.id} />)}
     </ul>
   ),
-  treehouse.treeView((t) => {
+  treehouse.pick((t) => {
     return {
       cars: t.query('latestCars')
     }
@@ -98,7 +98,7 @@ const List = wrap(
     </ul>
   ),
 
-  treehouse.treeView(t => {
+  treehouse.pick(t => {
     return {
       items: t.query('itemsByRecent')
     }

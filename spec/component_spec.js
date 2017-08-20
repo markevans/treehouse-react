@@ -35,7 +35,7 @@ describe("Component", () => {
           return <div id="widget">{theFruit}</div>
         },
 
-        app.treeView(t => {
+        app.pick(t => {
           return {
             theFruit: t.at(['fruit'])
           }
@@ -56,7 +56,7 @@ describe("Component", () => {
         Widget = wrap(
           ({a, b, c}) => (<div id="alphabet">{[a,b,c].join(',')}</div>),
 
-          app.treeView(t => {
+          app.pick(t => {
             return {
               a: t.at('a'),
               b: t.at('b')
@@ -116,7 +116,7 @@ describe("Component", () => {
             return <div id="container"><Widget/></div>
           },
 
-          app.treeView(t => {
+          app.pick(t => {
             return {
               fruit: t.at(['fruit'])
             }
