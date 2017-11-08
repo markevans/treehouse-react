@@ -2,7 +2,7 @@ const JSDOM = require("jsdom").JSDOM;
 const App = require('treehouse/lib/App')
 const React = require('react')
 const ReactDOM = require('react-dom')
-const wrap = require('../lib').wrap
+const connect = require('../lib').connect
 
 describe("Component", () => {
 
@@ -29,23 +29,21 @@ describe("Component", () => {
 
     beforeEach(() => {
       widgetRenderCount = 0
-      Widget = wrap(
+      Widget = connect(
+        app, {
+        pick: t => ({
+          theFruit: t.at('fruit')
+        })
+      })(
         ({theFruit}) => {
           widgetRenderCount++
           return <div id="widget">{theFruit}</div>
         },
-
-        app.pick(t => {
-          return {
-            theFruit: t.at(['fruit'])
-          }
-        })
       )
     })
 
     it("renders from the tree", () => {
-      app.trunk().set({fruit: 'orange', animal: 'sheep'})
-      app.commit()
+      app.init({fruit: 'orange', animal: 'sheep'})
       render(<Widget />)
       expect(html('widget')).toEqual('orange')
     })
@@ -53,20 +51,19 @@ describe("Component", () => {
     describe("using props", () => {
 
       beforeEach(() => {
-        Widget = wrap(
-          ({a, b, c}) => (<div id="alphabet">{[a,b,c].join(',')}</div>),
-
-          app.pick(t => {
-            return {
-              a: t.at('a'),
-              b: t.at('b')
-            }
+        Widget = connect(
+          app, {
+          pick: t => ({
+            a: t.at('a'),
+            b: t.at('b')
           })
+        })(
+          ({a, b, c}) => <div id="alphabet">{[a,b,c].join(',')}</div>,
         )
       })
 
       it("merges props, giving priority to passed in ones", () => {
-        app.trunk().set({a: 'AYE', b: 'BEE'})
+        app.init({a: 'AYE', b: 'BEE'})
         render(<Widget b="beta" c="gamma" />)
         expect(html('alphabet')).toEqual('AYE,beta,gamma')
       })
@@ -75,30 +72,28 @@ describe("Component", () => {
     describe("updating", () => {
 
       beforeEach(() => {
-        app.trunk().set({fruit: 'orange', animal: 'sheep'})
-        app.commit()
+        app.init({fruit: 'orange', animal: 'sheep'})
         render(<Widget/>)
         widgetRenderCount = 0
       })
 
       it("updates when the relevant branch has been touched", () => {
-        app.at(['fruit']).set('apple')
-        app.commit()
+        app.tree.push({path: ['fruit'], value: 'apple', channels: ['fruit']})
+        app.commitChanges()
         expect(html('widget')).toEqual('apple')
         expect(widgetRenderCount).toEqual(1)
       })
 
       it("doesn't update when the relevant branch hasn't been touched", () => {
-        app.at(['animal']).set('sloth')
-        app.commit()
+        app.tree.push({path: ['animal'], value: 'sloth', channels: ['animal']})
+        app.commitChanges()
         expect(html('widget')).toEqual('orange')
         expect(widgetRenderCount).toEqual(0)
       })
 
       it("doesn't call render if the state from tree is the same", () => {
-        spyOn(app, 'log') // Suppress log warning
-        app.at(['fruit']).set('orange')
-        app.commit()
+        app.tree.push({path: ['fruit'], value: 'orange', channels: ['fruit']})
+        app.commitChanges()
         expect(html('widget')).toEqual('orange')
         expect(widgetRenderCount).toEqual(0)
       })
@@ -110,21 +105,19 @@ describe("Component", () => {
       let Container, containerRenderCount
 
       beforeEach(() => {
-        Container = wrap(
+        Container = connect(
+          app, {
+          pick: t => ({
+            fruit: t.at(['fruit'])
+          })
+        })(
           () => {
             containerRenderCount++
             return <div id="container"><Widget/></div>
-          },
-
-          app.pick(t => {
-            return {
-              fruit: t.at(['fruit'])
-            }
-          })
+          }
         )
 
-        app.trunk().set({fruit: 'orange'})
-        app.commit()
+        app.init({fruit: 'orange'})
 
         render(<Container/>)
 
@@ -132,9 +125,10 @@ describe("Component", () => {
         widgetRenderCount = 0
       })
 
-      it("only updates once even though its parent wants to update it as well as itself", () => {
-        app.at(['fruit']).set('apple')
-        app.commit()
+      it("only tries to update once even though its parent wants to update it as well as itself", () => {
+        Widget.prototype.shouldComponentUpdate = () => true
+        app.tree.push({path: ['fruit'], value: 'apple', channels: ['fruit']})
+        app.commitChanges()
         expect(html('container')).toEqual('<div id="widget">apple</div>')
         expect(containerRenderCount).toEqual(1)
         expect(widgetRenderCount).toEqual(1)
