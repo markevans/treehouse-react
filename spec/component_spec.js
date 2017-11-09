@@ -137,4 +137,35 @@ describe("Component", () => {
 
   })
 
+  describe("events", () => {
+
+    let Widget, increasedStuff
+
+    beforeEach(() => {
+      app.registerEvent('increaseStuff', {
+        action: (payload) => {
+          increasedStuff = payload * 2
+        }
+      })
+      Widget = connect(
+        app, {
+        events: event => ({
+          onClicked: event('increaseStuff')
+        })
+      })(
+        ({onClicked}) => {
+          return <div id="widget" onClick={() => onClicked(7)}>Hello</div>
+        }
+      )
+      render(<Widget/>)
+    })
+
+    it("calls events passed in", () => {
+      const div = document.getElementById('widget')
+      div.click()
+      expect(increasedStuff).toEqual(14)
+    })
+
+  })
+
 })
