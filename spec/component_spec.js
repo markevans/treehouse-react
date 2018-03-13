@@ -185,4 +185,83 @@ describe("Component", () => {
 
   })
 
+  describe("scope", () => {
+
+    let Grandparent, Parent, Child
+    let grandparentScope, parentScope, childScope
+
+    beforeEach(() => {
+      Child = connector(app, {
+        events: (action, scope) => ({
+          onClick: () => {
+            childScope = scope
+          }
+        }),
+        component: ({onClick}) => <div id="child" onClick={onClick}>Kid</div>
+      })
+      Parent = connector(app, {
+        addToScope: props => ({
+          tab: props.tab
+        }),
+        events: (action, scope) => ({
+          onClick: () => parentScope = scope
+        }),
+        component: ({onClick}) => (<div>
+          <div id="parent" onClick={onClick}>Mum</div>
+          <Child/>
+        </div>)
+      })
+      Grandparent = connector(app, {
+        addToScope: props => ({
+          page: props.page
+        }),
+        events: (action, scope) => ({
+          onClick: () => grandparentScope = scope
+        }),
+        component: ({onClick}) => (<div>
+          <div id="grandparent" onClick={onClick}>Granny</div>
+          <Parent tab={6} />
+        </div>)
+      })
+      render(<Grandparent page={2} />)
+    })
+
+    it("inherits its parent's scope", () => {
+      document.getElementById('child').click()
+      expect(childScope).toEqual({
+        page: 2,
+        tab: 6
+      })
+    })
+
+    it("can add to its parent's scope", () => {
+      document.getElementById('parent').click()
+      expect(parentScope).toEqual({
+        page: 2,
+        tab: 6
+      })
+    })
+
+    it("doesn't interfere with its parent's scope", () => {
+      document.getElementById('grandparent').click()
+      expect(grandparentScope).toEqual({
+        page: 2
+      })
+    })
+
+    it("defaults the scope to an empty object", () => {
+      let scope
+      const A = connector(app, {
+        events: (action, s) => ({
+          onClick: () => scope = s
+        }),
+        component: ({onClick}) => <div id="a" onClick={onClick}>a</div>
+      })
+      render(<A/>)
+      document.getElementById('a').click()
+      expect(scope).toEqual({})
+    })
+
+  })
+
 })
