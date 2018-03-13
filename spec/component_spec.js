@@ -167,6 +167,22 @@ describe("Component", () => {
       expect(result).toEqual(9)
     })
 
+    it("allows passing a simple object", () => {
+      app.registerAction('setTo4', () => result = 4)
+      const SimpleWidget = connector(app, {
+        events: {
+          handleClick: 'setTo4'
+        },
+        component: ({handleClick}) => {
+          return <div id="simple-widget" onClick={handleClick}>Hello</div>
+        }
+      })
+      render(<SimpleWidget/>)
+      const div = document.getElementById('simple-widget')
+      div.click()
+      expect(result).toEqual(4)
+    })
+
   })
 
 })
