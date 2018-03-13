@@ -2,7 +2,7 @@ const JSDOM = require("jsdom").JSDOM;
 const App = require('treehouse/lib/App')
 const React = require('react')
 const ReactDOM = require('react-dom')
-const connect = require('../lib').connect
+const connector = require('../lib').connector
 
 describe("Component", () => {
 
@@ -29,17 +29,15 @@ describe("Component", () => {
 
     beforeEach(() => {
       widgetRenderCount = 0
-      Widget = connect(
-        app, {
+      Widget = connector(app, {
         pick: t => ({
           theFruit: t.at('fruit')
-        })
-      })(
-        ({theFruit}) => {
+        }),
+        component: ({theFruit}) => {
           widgetRenderCount++
           return <div id="widget">{theFruit}</div>
         },
-      )
+      })
     })
 
     it("renders from the tree", () => {
@@ -51,15 +49,13 @@ describe("Component", () => {
     describe("using props", () => {
 
       beforeEach(() => {
-        Widget = connect(
-          app, {
+        Widget = connector(app, {
           pick: t => ({
             a: t.at('a'),
             b: t.at('b')
-          })
-        })(
-          ({a, b, c}) => <div id="alphabet">{[a,b,c].join(',')}</div>,
-        )
+          }),
+          component: ({a, b, c}) => <div id="alphabet">{[a,b,c].join(',')}</div>,
+        })
       })
 
       it("merges props, giving priority to passed in ones", () => {
@@ -105,17 +101,15 @@ describe("Component", () => {
       let Container, containerRenderCount
 
       beforeEach(() => {
-        Container = connect(
-          app, {
+        Container = connector(app, {
           pick: t => ({
             fruit: t.at(['fruit'])
-          })
-        })(
-          () => {
+          }),
+          component: () => {
             containerRenderCount++
             return <div id="container"><Widget/></div>
           }
-        )
+        })
 
         app.init({fruit: 'orange'})
 
@@ -137,33 +131,40 @@ describe("Component", () => {
 
   })
 
-  describe("events", () => {
+  describe("wiring events to actions", () => {
 
-    let Widget, increasedStuff
+    let Widget, result
 
     beforeEach(() => {
-      app.registerEvent('increaseStuff', {
-        action: (payload) => {
-          increasedStuff = payload * 2
+      app.registerActions({
+        increaseNum: payload => result = payload * 2,
+        setTo9: () => result = 9
+      })
+      Widget = connector(app, {
+        events: action => ({
+          onClickedIncrease: num => action('increaseNum', num),
+          onClickedSet9: 'setTo9'
+        }),
+        component: ({onClickedIncrease, onClickedSet9}) => {
+          return <div>
+            <div id="increase" onClick={() => onClickedIncrease(7)}>Hello</div>
+            <div id="set9" onClick={onClickedSet9}>Hello</div>
+          </div>
         }
       })
-      Widget = connect(
-        app, {
-        events: event => ({
-          onClicked: event('increaseStuff')
-        })
-      })(
-        ({onClicked}) => {
-          return <div id="widget" onClick={() => onClicked(7)}>Hello</div>
-        }
-      )
       render(<Widget/>)
     })
 
-    it("calls events passed in", () => {
-      const div = document.getElementById('widget')
+    it("calls actions wired to", () => {
+      const div = document.getElementById('increase')
       div.click()
-      expect(increasedStuff).toEqual(14)
+      expect(result).toEqual(14)
+    })
+
+    it("allows passing a string if no args are needed", () => {
+      const div = document.getElementById('set9')
+      div.click()
+      expect(result).toEqual(9)
     })
 
   })
